@@ -11,27 +11,51 @@ class Settings
   public:
     Settings()
     {
-      mKalT = 0.0f;
-      mKalM = 1.0f;
+      params.mKalT  =  0.0f;
+      params.mKalM  =  1.0f;
+      params.mOnT   =  0.1f;
+      params.mOffT  =  0.1f;
     }
     float getKalT() 
     {
-      return mKalT;
+      return params.mKalT;
     }
     void getKalT(float kaltT) 
     {
-      mKalT = kaltT;
+      params.mKalT = kaltT;
     }
     float getKalM() 
     {
-      return mKalM;
+      return params.mKalM;
     }
     void getKalM(float kaltM) 
     {
-      mKalM = kaltM;
+      params.mKalM = kaltM;
     }
+    float getOnT() 
+    {
+      return params.mOnT;
+    }
+    void getOnT(float onT) 
+    {
+      params.mOnT = onT;
+    }
+    float getOffT() 
+    {
+      return params.mOffT;
+    }
+    void getOffT(float offT) 
+    {
+      params.mOffT = offT;
+    }    
   private:
-    float mKalT;
-    float mKalM;
+    
+    struct
+    {
+      float mKalT;
+      float mKalM;
+      float mOnT;
+      float mOffT;
+    } params;
 };
 #endif
