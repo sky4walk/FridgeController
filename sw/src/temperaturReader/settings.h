@@ -13,8 +13,8 @@ class Settings
     {
       params.mKalT  =  0.0f;
       params.mKalM  =  1.0f;
-      params.mOnT   =  0.1f;
-      params.mOffT  =  0.1f;
+      params.mOnT   =  26.1f;
+      params.mOffT  =  27.1f;
     }
     float getKalT() 
     {
