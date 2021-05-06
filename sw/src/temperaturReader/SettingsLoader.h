@@ -50,8 +50,52 @@ class SettingsLoader {
         mSettings.setOnT( doc["onT"] );
       if ( doc.containsKey("offT") )
         mSettings.setOffT( doc["offT"] );
-      
+
+      return true;
     }
+    bool format(){
+      CONSOLE(F("\nneed to format SPIFFS: "));
+      SPIFFS.end();
+      SPIFFS.begin();
+      CONSOLELN(SPIFFS.format());
+      return SPIFFS.begin();
+    }
+    bool save() {
+      if (!SPIFFS.begin())  {
+        CONSOLELN("Failed to mount file system");
+        return false;
+      }
+      
+      if (!format()) {
+        CONSOLELN("Failed to format file system - hardware issues!");
+        return false;
+      }
+
+      DynamicJsonDocument doc(2048);
+
+      doc["kalT"] = mSettings.getKalT();
+      doc["kalM"] = mSettings.getKalM();
+      doc["onT"]  = mSettings.getOnT();
+      doc["offT"] = mSettings.getOffT();
+//      doc["SSID"] = WiFi.SSID();
+//      doc["PSK"]  = WiFi.psk();
+
+      File configFile = SPIFFS.open(SETTINGSFILE, "w");
+      if (!configFile) {
+        CONSOLELN(F("failed to open config file for writing"));
+        SPIFFS.end();
+        return false;
+      }
+  
+      serializeJson(doc, configFile);
+      configFile.flush();
+      configFile.close();
+      SPIFFS.gc();
+      SPIFFS.end();
+      CONSOLELN(F("\nsaved successfully"));
+      return true;
+  }
+
   private:
     Settings& mSettings;
 };
