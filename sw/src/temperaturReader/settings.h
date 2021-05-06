@@ -56,6 +56,7 @@ class Settings
       float mKalM;
       float mOnT;
       float mOffT;
+      bool doubleReset;
     } params;
 };
 #endif
