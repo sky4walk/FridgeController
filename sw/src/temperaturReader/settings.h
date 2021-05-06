@@ -20,7 +20,7 @@ class Settings
     {
       return params.mKalT;
     }
-    void getKalT(float kaltT) 
+    void setKalT(float kaltT) 
     {
       params.mKalT = kaltT;
     }
@@ -28,7 +28,7 @@ class Settings
     {
       return params.mKalM;
     }
-    void getKalM(float kaltM) 
+    void setKalM(float kaltM) 
     {
       params.mKalM = kaltM;
     }
@@ -36,7 +36,7 @@ class Settings
     {
       return params.mOnT;
     }
-    void getOnT(float onT) 
+    void setOnT(float onT) 
     {
       params.mOnT = onT;
     }
@@ -44,7 +44,7 @@ class Settings
     {
       return params.mOffT;
     }
-    void getOffT(float offT) 
+    void setOffT(float offT) 
     {
       params.mOffT = offT;
     }    
