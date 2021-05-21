@@ -3,6 +3,10 @@
 #include "ESPAsyncTCP.h"
 #include "TempWebServer.h"
 
+const char* PARAM_ON_INPUT  = "OnInput";
+const char* PARAM_OFF_INPUT = "OnInput";
+const char* PARAM_PW_INPUT  = "PwInput";
+
 const char temperatur_html[] PROGMEM = R"rawliteral(
   <!DOCTYPE HTML><html>
   <head>
@@ -69,27 +73,43 @@ const char setup_html[] PROGMEM = R"rawliteral(
   <head></head>
     <h2>Controller Setup</h2>
     <h3> <a href="http://www.Zwieselbrau.de/">Zwieselbrau.de</a></h3>
-    <form action="/">
-      <label for="minTemp">Min :</label>
-      <input type="text" id="minTmp" name="minValue"><br><br>
-      <label for="maxTemp">Max :</label>
-      <input type="text" id="maxTmp" name="maxValue"><br><br>
-      <input type="submit" value="Save" onclick="window.location.href='/'">
-      
+    <form action="/setUpGet">
+      <label for="minTemp">On :</label>
+      actual Value : %ONVAL% : <input type="text" name="OnInput"><br>
+      <label for="maxTemp">Off :</label>
+      actual Value : %OFFVAL%: <input type="text" name="OffInput"><br>
+      <label for="pwValue">Password :</label>
+      <input type="text" name="PwInput"><br>
+      <input type="submit" value="Save">      
   </form>
+  
   <script>
+  /*
     function myFunction() {
       window.location.href="/";
     }
-  </script> 
+    */
+  </script>
+   
   </body></html>
 )rawliteral";
 
 
-String processor(const String& var){
+String processorTemp(const String& var){
   //Serial.println(var);
   if(var == "TEMPERATURE"){
     return String(TempWebServer::mSettings->getActTemp());
+  } 
+  return String();
+}
+
+String processorSetup(const String& var){
+  //Serial.println(var);
+  if(var == "OFFVAL"){
+    return String(TempWebServer::mSettings->getOffT());
+  } 
+  else if(var == "ONVAL"){
+    return String(TempWebServer::mSettings->getOnT());
   } 
   return String();
 }
@@ -99,15 +119,29 @@ void notFound(AsyncWebServerRequest *request) {
 }
 
 void rootLevel(AsyncWebServerRequest *request) {
-  request->send_P(200, "text/html", temperatur_html, processor);
+  request->send_P(200, "text/html", temperatur_html, processorTemp);
 }
 
 void setLevel(AsyncWebServerRequest *request) {
-  request->send_P(200, "text/html", setup_html);
+  request->send_P(200, "text/html", setup_html, processorSetup);
 }
 
 void readTemp(AsyncWebServerRequest *request) {
   request->send_P(200, "text/html", String(TempWebServer::mSettings->getActTemp()).c_str());
+}
+
+void setLevelGet(AsyncWebServerRequest *request) {
+  String inputMessage;
+  if (request->hasParam(PARAM_ON_INPUT)) {
+      inputMessage = request->getParam(PARAM_ON_INPUT)->value();
+  }
+  if (request->hasParam(PARAM_OFF_INPUT)) {
+      inputMessage = request->getParam(PARAM_OFF_INPUT)->value();
+  }
+  if (request->hasParam(PARAM_PW_INPUT)) {
+      inputMessage = request->getParam(PARAM_PW_INPUT)->value();
+  }
+  request->send(200, "text/text", inputMessage);
 }
 
 Settings* TempWebServer::mSettings;
@@ -125,6 +159,7 @@ void TempWebServer::begin(){
       mServer.on("/", HTTP_GET, rootLevel);
       mServer.on("/readTemp", HTTP_GET, readTemp);
       mServer.on("/setUp", HTTP_GET, setLevel);
+      mServer.on("/setUpGet", HTTP_GET, setLevelGet);
       mServer.onNotFound( notFound );
       mServer.begin();
 }        
