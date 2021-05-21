@@ -11,6 +11,7 @@
 #include "WaitTime.h"
 #include "SettingsLoader.h"
 #include "WifiCofiguration.h"
+#include "TempWebServer.h"
 
 #define GPIO5_D1 5
 #define GPIO4_D2 4
@@ -29,11 +30,17 @@ DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 WaitTime sensorRead(READ_TEMP);
 SettingsLoader loader(datas);
 WifiConfiguration wifiConfig(datas);
+TempWebServer rmpServer(wifiConfig.getWebserver(),&datas);
 
 void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+
+  delay(200);
+  
   CONSOLELN(ESP.getSdkVersion());
   pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(115200);
+
   wifiConfig.begin();
   
   configMode = false;
@@ -49,14 +56,16 @@ void setup() {
     wifiConfig.config();
     loader.save();
   } else {
-    CONSOLELN("No Double Reset Detected");
-    digitalWrite(LED_BUILTIN, HIGH);
+    CONSOLELN("No Double Reset Detected");   
     if (!wifiConfig.connect()) {
+    digitalWrite(LED_BUILTIN, LOW);
       configMode = true;
       loader.save();
     }
+    digitalWrite(LED_BUILTIN, HIGH);
   }
-  
+
+  rmpServer.begin();
   tmpSensor.begin();
   controlTmp.begin();
   led.begin();
@@ -70,6 +79,8 @@ void loop() {
       float temperatureC = tmpSensor.getTemperatur();
       bool st = controlTmp.getState(temperatureC);
       led.set(st);
+      datas.setActTemp(temperatureC);
+      datas.setOnOff(st);
       CONSOLE(temperatureC);
       CONSOLE("ºC");
       if (st )

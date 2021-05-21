@@ -63,13 +63,11 @@ class SettingsLoader {
     bool save() {
       if (!SPIFFS.begin())  {
         CONSOLELN("Failed to mount file system");
-        return false;
-      }
-      
-      if (!format()) {
-        CONSOLELN("Failed to format file system - hardware issues!");
-        return false;
-      }
+        if (!format()) {
+          CONSOLELN("Failed to format file system - hardware issues!");
+          return false;
+        }        
+      }      
 
       DynamicJsonDocument doc(2048);
 

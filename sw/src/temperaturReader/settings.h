@@ -48,61 +48,23 @@ class Settings
     {
       params.mOffT = offT;
     }
-    void setSSID(String ssid)
-    {
-      params.ssid = ssid;    
+    void setWebPassWd(String webPassWd) {
+      params.webPassWd = webPassWd;
     }
-    String getSSID()
-    {
-      return params.ssid;    
+    String getWebPassWd() {
+      return params.webPassWd;
     }
-    void setPsk(String psk)
-    {
-      params.psk = psk;    
+    float getActTemp(){
+      return params.actTemp;
     }
-    String getPsk()
-    {
-      return params.psk;    
+    void setActTemp(float actTemp){
+      params.actTemp = actTemp;
     }
-    void setNameDev(String nameDev)
-    {
-      params.nameDev = nameDev;    
+    bool getOnOff() {
+      return params.onOff;
     }
-    String getNameDev()
-    {
-      return params.nameDev;    
-    }
-    void setServer(String server)
-    {
-      params.server = server;    
-    }
-    String getServer()
-    {
-      return params.server;    
-    }
-    void setUsername(String username)
-    {
-      params.username = username;    
-    }
-    String getUsername()
-    {
-      return params.username;    
-    }
-    void setPassWd(String passwd)
-    {
-      params.passwd = passwd;    
-    }
-    String getPassWd()
-    {
-      return params.passwd;    
-    }
-    void setPort(uint16_t port)
-    {
-      params.port = port;    
-    }
-    uint16_t getPort()
-    {
-      return params.port;    
+    void setOnOff(bool onOff) {
+      params.onOff = onOff;
     }
   private:
     
@@ -113,14 +75,9 @@ class Settings
       float mOnT;
       float mOffT;
       bool doubleReset;
-      String ssid;
-      String psk;
-      String nameDev;
-      String server;
-      String username;
-      String passwd;
-      uint16_t port;
-      
+      String webPassWd;  
+      float actTemp;
+      bool onOff;   
     } params;
 };
 #endif
