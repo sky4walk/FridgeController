@@ -3,7 +3,7 @@
 #include "ESPAsyncTCP.h"
 #include "TempWebServer.h"
 
-const char index_html[] PROGMEM = R"rawliteral(
+const char temperatur_html[] PROGMEM = R"rawliteral(
   <!DOCTYPE HTML><html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,28 +27,64 @@ const char index_html[] PROGMEM = R"rawliteral(
   </head>
   <body>
     <h2>Temperatur Controller</h2>
-    <h3>Zwieselbrau.de</h3>
+    <h3> <a href="http://www.Zwieselbrau.de/">Zwieselbrau.de</a></h3>
+    <p id="time"></p>
     <p>
       <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
       <span class="dht-labels">Temperature</span> 
       <span id="temperature">%TEMPERATURE%</span>
       <sup class="units">&deg;C</sup>
-    </p>  
-  </body>
-  <script>
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("temperature").innerHTML = this.responseText;
+    </p>
+
+    <button onclick="window.location.href='/setUp'">Setup</button>
+    
+    <script>
+      var myVar = setInterval(myTimer, 1000);
+
+      function myTimer() {
+        var d = new Date();
+        var t = d.toLocaleTimeString();
+        document.getElementById("time").innerHTML = t;
+        getData();
       }
-    };
-    xhttp.open("GET", "/temperature", true);
-    xhttp.send();
-  }, 10000 ) ;
-  </script>
-  </html>
+
+      function getData() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("temperature").innerHTML = this.responseText;
+          }
+        };
+        xhttp.open("GET", "readTemp", true);
+        xhttp.send();
+      }
+      
+    </script>  
+  </body></html>
 )rawliteral";
+
+
+const char setup_html[] PROGMEM = R"rawliteral(
+  <!DOCTYPE HTML><html>
+  <head></head>
+    <h2>Controller Setup</h2>
+    <h3> <a href="http://www.Zwieselbrau.de/">Zwieselbrau.de</a></h3>
+    <form action="/">
+      <label for="minTemp">Min :</label>
+      <input type="text" id="minTmp" name="minValue"><br><br>
+      <label for="maxTemp">Max :</label>
+      <input type="text" id="maxTmp" name="maxValue"><br><br>
+      <input type="submit" value="Save" onclick="window.location.href='/'">
+      
+  </form>
+  <script>
+    function myFunction() {
+      window.location.href="/";
+    }
+  </script> 
+  </body></html>
+)rawliteral";
+
 
 String processor(const String& var){
   //Serial.println(var);
@@ -63,10 +99,14 @@ void notFound(AsyncWebServerRequest *request) {
 }
 
 void rootLevel(AsyncWebServerRequest *request) {
-  request->send_P(200, "text/html", index_html, processor);
+  request->send_P(200, "text/html", temperatur_html, processor);
 }
 
-void temperaturLevel(AsyncWebServerRequest *request) {
+void setLevel(AsyncWebServerRequest *request) {
+  request->send_P(200, "text/html", setup_html);
+}
+
+void readTemp(AsyncWebServerRequest *request) {
   request->send_P(200, "text/html", String(TempWebServer::mSettings->getActTemp()).c_str());
 }
 
@@ -83,7 +123,8 @@ TempWebServer::TempWebServer(
 
 void TempWebServer::begin(){
       mServer.on("/", HTTP_GET, rootLevel);
-      mServer.on("/temperature", HTTP_GET, temperaturLevel);
+      mServer.on("/readTemp", HTTP_GET, readTemp);
+      mServer.on("/setUp", HTTP_GET, setLevel);
       mServer.onNotFound( notFound );
       mServer.begin();
 }        

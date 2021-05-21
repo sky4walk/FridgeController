@@ -17,7 +17,7 @@
 #define GPIO4_D2 4
 #define DRD_ADDRESS 0
 #define DRD_TIMEOUT 10
-#define READ_TEMP  2*MIL2SEC
+#define READ_TEMP  1*MIL2SEC
 
 
 bool configMode = true;
