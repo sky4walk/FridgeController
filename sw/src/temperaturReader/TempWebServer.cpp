@@ -39,7 +39,12 @@ const char temperatur_html[] PROGMEM = R"rawliteral(
       <span id="temperature">%TEMPERATURE%</span>
       <sup class="units">&deg;C</sup>
     </p>
-
+    <p>
+      <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
+      <span class="dht-labels">Strom</span> 
+      <span id="anaus">%ANAUS%</span>
+      <sup class="units">&deg;C</sup>
+    </p>
     <button onclick="window.location.href='/setUp'">Setup</button>
     
     <script>
@@ -94,12 +99,19 @@ const char setup_html[] PROGMEM = R"rawliteral(
   </body></html>
 )rawliteral";
 
-
+// processor ersetzt werte im Dokument
 String processorTemp(const String& var){
   //Serial.println(var);
   if(var == "TEMPERATURE"){
     return String(TempWebServer::mSettings->getActTemp());
-  } 
+  }
+  if(var == "ANAUS"){
+    if ( TempWebServer::mSettings->getOnOff() ) {
+      return String("On");
+    } else {
+      return String("Off");      
+    }
+  }  
   return String();
 }
 
@@ -149,11 +161,9 @@ Settings* TempWebServer::mSettings;
 TempWebServer::TempWebServer(
        AsyncWebServer& server,
        Settings* set) :
-        mServer(server)
-        {
+        mServer(server) {
           TempWebServer::mSettings = set;
 }
-
 
 void TempWebServer::begin(){
       mServer.on("/", HTTP_GET, rootLevel);

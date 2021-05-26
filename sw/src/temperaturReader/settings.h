@@ -11,10 +11,12 @@ class Settings
   public:
     Settings()
     {
-      params.mKalT  =  0.0f;
-      params.mKalM  =  1.0f;
-      params.mOnT   =  26.1f;
-      params.mOffT  =  27.1f;
+      params.mKalT      =  0.0f;
+      params.mKalM      =  1.0f;
+      params.mOnT       =  26.1f;
+      params.mOffT      =  27.1f;
+      params.onOff      = false;
+      params.shouldSave = false;
     }
     float getKalT() 
     {
@@ -66,6 +68,18 @@ class Settings
     void setOnOff(bool onOff) {
       params.onOff = onOff;
     }
+    bool getShouldSave() {
+      return params.shouldSave;
+    }
+    void setShouldSave(bool shouldSave) {
+      params.shouldSave = shouldSave;
+    }
+    String getPassWd() {
+      return params.passWd;
+    }
+    void setPassWd(String passWd) {
+      params.passWd = passWd;
+    }
   private:
     
     struct
@@ -77,7 +91,9 @@ class Settings
       bool doubleReset;
       String webPassWd;  
       float actTemp;
-      bool onOff;   
+      bool onOff;
+      bool shouldSave;
+      String passWd;   
     } params;
 };
 #endif
