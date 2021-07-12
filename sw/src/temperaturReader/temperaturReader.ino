@@ -15,6 +15,7 @@
 
 #define GPIO5_D1 5
 #define GPIO4_D2 4
+#define GPIO2_D4 2
 #define DRD_ADDRESS 0
 #define DRD_TIMEOUT 10
 #define READ_TEMP  1*MIL2SEC
@@ -23,7 +24,7 @@
 bool configMode = true;
 Settings datas;
 RCSwitch mySwitch = RCSwitch();
-TemperaturSensorDS18B20 tmpSensor(GPIO4_D2,datas);
+TemperaturSensorDS18B20 tmpSensor(GPIO2_D4,datas);
 ControllerHysterese controlTmp(datas);
 Led led(GPIO5_D1);
 DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
@@ -69,7 +70,10 @@ void setup() {
   tmpSensor.begin();
   controlTmp.begin();
   led.begin();
-  
+  mySwitch.enableTransmit(0); //D3
+  mySwitch.setProtocol(datas.getSwitchProtocol());
+  mySwitch.setPulseLength(datas.getSwitchPulseLength());  
+//  mySwitch.setRepeatTransmit(datas.getSwitchRepeat()); 
 }
 
 void loop() {
@@ -83,11 +87,18 @@ void loop() {
       datas.setOnOff(st);
       CONSOLE(temperatureC);
       CONSOLE("ºC");
-      if (st )
+      if (st ) {
         CONSOLELN(" on");
-      else  
+        mySwitch.send(datas.getSwitchOn(),datas.getSwitchBits());
+      } else {
         CONSOLELN(" off");
+        mySwitch.send(datas.getSwitchOff(),datas.getSwitchBits());
+      }
       sensorRead.restart();
+    }
+    if ( datas.getShouldSave() ) {
+      loader.save();
+      datas.setShouldSave(false);
     }
   }
   drd.loop();

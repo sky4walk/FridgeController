@@ -11,12 +11,18 @@ class Settings
   public:
     Settings()
     {
-      params.mKalT      =  0.0f;
-      params.mKalM      =  1.0f;
-      params.mOnT       =  26.1f;
-      params.mOffT      =  27.1f;
-      params.onOff      = false;
-      params.shouldSave = false;
+      params.mKalT              = 0.0f;
+      params.mKalM              = 1.0f;
+      params.mOnT               = 26.1f;
+      params.mOffT              = 27.1f;
+      params.onOff              = false;
+      params.shouldSave         = false;
+      params.switchOn           = 1631343;
+      params.switchOff          = 1631342;
+      params.switchProtocol     = 1;
+      params.switchPulseLength  = 315;
+      params.switchBits         = 24;
+      params.switchRepeat       = 15;
     }
     float getKalT() 
     {
@@ -80,6 +86,24 @@ class Settings
     void setPassWd(String passWd) {
       params.passWd = passWd;
     }
+    int getSwitchOn() {
+      return params.switchOn;
+    }
+    int getSwitchOff() {
+      return params.switchOff;
+    }
+    int getSwitchBits() {
+      return params.switchBits;
+    }
+    int getSwitchProtocol() {
+      return params.switchProtocol;
+    }
+    int getSwitchPulseLength() {
+      return params.switchPulseLength;
+    }
+    int getSwitchRepeat() {
+      return params.switchRepeat;
+    }
   private:
     
     struct
@@ -93,7 +117,13 @@ class Settings
       float actTemp;
       bool onOff;
       bool shouldSave;
-      String passWd;   
+      String passWd;
+      int switchOn;
+      int switchOff;
+      int switchProtocol;
+      int switchPulseLength;
+      int switchBits;
+      int switchRepeat;
     } params;
 };
 #endif

@@ -2,9 +2,10 @@
 #include "ESP8266WiFi.h"
 #include "ESPAsyncTCP.h"
 #include "TempWebServer.h"
+#include "DbgConsole.h"
 
 const char* PARAM_ON_INPUT  = "OnInput";
-const char* PARAM_OFF_INPUT = "OnInput";
+const char* PARAM_OFF_INPUT = "OffInput";
 const char* PARAM_PW_INPUT  = "PwInput";
 
 const char temperatur_html[] PROGMEM = R"rawliteral(
@@ -43,7 +44,6 @@ const char temperatur_html[] PROGMEM = R"rawliteral(
       <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
       <span class="dht-labels">Strom</span> 
       <span id="anaus">%ANAUS%</span>
-      <sup class="units">&deg;C</sup>
     </p>
     <button onclick="window.location.href='/setUp'">Setup</button>
     
@@ -55,6 +55,7 @@ const char temperatur_html[] PROGMEM = R"rawliteral(
         var t = d.toLocaleTimeString();
         document.getElementById("time").innerHTML = t;
         getData();
+        getState();
       }
 
       function getData() {
@@ -65,6 +66,16 @@ const char temperatur_html[] PROGMEM = R"rawliteral(
           }
         };
         xhttp.open("GET", "readTemp", true);
+        xhttp.send();
+      }
+      function getState() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("anaus").innerHTML = this.responseText;
+          }
+        };
+        xhttp.open("GET", "readState", true);
         xhttp.send();
       }
       
@@ -79,15 +90,11 @@ const char setup_html[] PROGMEM = R"rawliteral(
     <h2>Controller Setup</h2>
     <h3> <a href="http://www.Zwieselbrau.de/">Zwieselbrau.de</a></h3>
     <form action="/setUpGet">
-      <label for="minTemp">On :</label>
-      actual Value : %ONVAL% : <input type="text" name="OnInput"><br>
-      <label for="maxTemp">Off :</label>
-      actual Value : %OFFVAL%: <input type="text" name="OffInput"><br>
-      <label for="pwValue">Password :</label>
-      <input type="text" name="PwInput"><br>
-      <input type="submit" value="Save">      
-  </form>
-  
+      On <input type="number" step="0.1" name="OnInput" value="%ONINPUT%" required> °C<br>
+      Off <input type="number" step="0.1" name="OffInput" value="%OFFINPUT%" required> °C<br>
+      <input type="submit" value="Submit">
+      <button onclick="window.location.href='/'">Back</button>
+    </form> 
   <script>
   /*
     function myFunction() {
@@ -117,10 +124,10 @@ String processorTemp(const String& var){
 
 String processorSetup(const String& var){
   //Serial.println(var);
-  if(var == "OFFVAL"){
+  if(var == "OFFINPUT"){
     return String(TempWebServer::mSettings->getOffT());
   } 
-  else if(var == "ONVAL"){
+  else if(var == "ONINPUT"){
     return String(TempWebServer::mSettings->getOnT());
   } 
   return String();
@@ -141,19 +148,32 @@ void setLevel(AsyncWebServerRequest *request) {
 void readTemp(AsyncWebServerRequest *request) {
   request->send_P(200, "text/html", String(TempWebServer::mSettings->getActTemp()).c_str());
 }
+void readState(AsyncWebServerRequest *request) {
+  if ( TempWebServer::mSettings->getOnOff() ) {
+    request->send_P(200, "text/html", String("On").c_str() );
+  } else {
+    request->send_P(200, "text/html", String("Off").c_str() );    
+  }
+}
 
 void setLevelGet(AsyncWebServerRequest *request) {
   String inputMessage;
   if (request->hasParam(PARAM_ON_INPUT)) {
       inputMessage = request->getParam(PARAM_ON_INPUT)->value();
+      CONSOLELN(inputMessage);
+      TempWebServer::mSettings->setOnT(inputMessage.toFloat());
+      TempWebServer::mSettings->setShouldSave(true);
   }
   if (request->hasParam(PARAM_OFF_INPUT)) {
       inputMessage = request->getParam(PARAM_OFF_INPUT)->value();
+      CONSOLELN(inputMessage);     
+      TempWebServer::mSettings->setOffT(inputMessage.toFloat());
+      TempWebServer::mSettings->setShouldSave(true);
   }
   if (request->hasParam(PARAM_PW_INPUT)) {
       inputMessage = request->getParam(PARAM_PW_INPUT)->value();
   }
-  request->send(200, "text/text", inputMessage);
+  request->send(200, "text/html", "<a href=\"/\">Return to Home Page</a>");
 }
 
 Settings* TempWebServer::mSettings;
@@ -168,6 +188,7 @@ TempWebServer::TempWebServer(
 void TempWebServer::begin(){
       mServer.on("/", HTTP_GET, rootLevel);
       mServer.on("/readTemp", HTTP_GET, readTemp);
+      mServer.on("/readState", HTTP_GET, readState);
       mServer.on("/setUp", HTTP_GET, setLevel);
       mServer.on("/setUpGet", HTTP_GET, setLevelGet);
       mServer.onNotFound( notFound );

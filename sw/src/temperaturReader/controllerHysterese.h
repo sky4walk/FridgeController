@@ -21,6 +21,17 @@ class ControllerHysterese
       mState = false;      
     }
     bool getState(float actTmp) {
+      if ( isHeater() ){
+        CONSOLE(" Heater ");
+      } else {
+        CONSOLE(" Cooler ");       
+      }
+      CONSOLE(actTmp);
+      CONSOLE(" on ");
+      CONSOLE(mSettings.getOnT());
+      CONSOLE(" off ");
+      CONSOLELN(mSettings.getOffT());
+      
       if ( actTmp >= mSettings.getOffT() ) {
          mState = false;
       } else if ( actTmp <= mSettings.getOnT() ) {
