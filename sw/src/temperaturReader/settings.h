@@ -89,20 +89,38 @@ class Settings
     int getSwitchOn() {
       return params.switchOn;
     }
+    void setSwitchOn(int switchOn) {
+      params.switchOn = switchOn;
+    }
     int getSwitchOff() {
       return params.switchOff;
+    }
+    void setSwitchOff(int switchOff) {
+      params.switchOff = switchOff;
     }
     int getSwitchBits() {
       return params.switchBits;
     }
+    void setSwitchBits(int switchBits) {
+      params.switchBits = switchBits;
+    }
     int getSwitchProtocol() {
       return params.switchProtocol;
+    }
+    void setSwitchProtocol(int switchProtocol) {
+      params.switchProtocol = switchProtocol;
     }
     int getSwitchPulseLength() {
       return params.switchPulseLength;
     }
+    void setSwitchPulseLength(int switchPulseLength) {
+      params.switchPulseLength = switchPulseLength;
+    }
     int getSwitchRepeat() {
       return params.switchRepeat;
+    }
+    void setSwitchRepeat(int switchRepeat) {
+      params.switchRepeat = switchRepeat;
     }
   private:
     

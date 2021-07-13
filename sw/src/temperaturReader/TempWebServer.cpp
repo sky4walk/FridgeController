@@ -90,8 +90,16 @@ const char setup_html[] PROGMEM = R"rawliteral(
     <h2>Controller Setup</h2>
     <h3> <a href="http://www.Zwieselbrau.de/">Zwieselbrau.de</a></h3>
     <form action="/setUpGet">
-      On <input type="number" step="0.1" name="OnInput" value="%ONINPUT%" required> °C<br>
-      Off <input type="number" step="0.1" name="OffInput" value="%OFFINPUT%" required> °C<br>
+      <hr>
+      Temp On  <input type="number" step="0.1" name="OnInput" value="%ONINPUT%" required> C<br>
+      Temp Off <input type="number" step="0.1" name="OffInput" value="%OFFINPUT%" required> C<br>
+      <hr>
+      Switch On          <input type="number" step="1" name="SwitchOn" value="%SWITCHON%" required><br>
+      Switch Off         <input type="number" step="1" name="SwitchOff" value="%SWITCHOFF%" required><br>
+      Switch Protocol    <input type="number" step="1" name="SwitchProtocol" value="%SWITCHPROTOCOL%" required><br>
+      Switch Puls Length <input type="number" step="1" name="SwitchPulseLength" value="%SWITCHPULSELENGTH%" required><br>
+      Switch Bits        <input type="number" step="1" name="SwitchBits" value="%SWITCHBITS%" required><br>
+      Switch Repeats     <input type="number" step="1" name="SwitchRepeats" value="%SWITCHREPEATS%" required><br>
       <input type="submit" value="Submit">
       <button onclick="window.location.href='/'">Back</button>
     </form> 
@@ -129,7 +137,25 @@ String processorSetup(const String& var){
   } 
   else if(var == "ONINPUT"){
     return String(TempWebServer::mSettings->getOnT());
-  } 
+  }
+  else if(var == "SWITCHON"){
+    return String(TempWebServer::mSettings->getSwitchOn());
+  }
+  else if(var == "SWITCHOFF"){
+    return String(TempWebServer::mSettings->getSwitchOff());
+  }
+  else if(var == "SWITCHPROTOCOL"){
+    return String(TempWebServer::mSettings->getSwitchProtocol());
+  }
+  else if(var == "SWITCHPULSELENGTH"){
+    return String(TempWebServer::mSettings->getSwitchPulseLength());
+  }
+  else if(var == "SWITCHBITS"){
+    return String(TempWebServer::mSettings->getSwitchBits());
+  }
+  else if(var == "SWITCHREPEATS"){
+    return String(TempWebServer::mSettings->getSwitchRepeat());
+  }
   return String();
 }
 
@@ -168,6 +194,42 @@ void setLevelGet(AsyncWebServerRequest *request) {
       inputMessage = request->getParam(PARAM_OFF_INPUT)->value();
       CONSOLELN(inputMessage);     
       TempWebServer::mSettings->setOffT(inputMessage.toFloat());
+      TempWebServer::mSettings->setShouldSave(true);
+  }
+  if (request->hasParam("SwitchOn")) {
+      inputMessage = request->getParam("SwitchOn")->value();
+      CONSOLELN(inputMessage);     
+      TempWebServer::mSettings->setSwitchOn(inputMessage.toInt());
+      TempWebServer::mSettings->setShouldSave(true);
+  }
+  if (request->hasParam("SwitchOff")) {
+      inputMessage = request->getParam("SwitchOff")->value();
+      CONSOLELN(inputMessage);     
+      TempWebServer::mSettings->setSwitchOff(inputMessage.toInt());
+      TempWebServer::mSettings->setShouldSave(true);
+  }
+  if (request->hasParam("SwitchProtocol")) {
+      inputMessage = request->getParam("SwitchProtocol")->value();
+      CONSOLELN(inputMessage);     
+      TempWebServer::mSettings->setSwitchProtocol(inputMessage.toInt());
+      TempWebServer::mSettings->setShouldSave(true);
+  }
+  if (request->hasParam("SwitchPulseLength")) {
+      inputMessage = request->getParam("SwitchPulseLength")->value();
+      CONSOLELN(inputMessage);     
+      TempWebServer::mSettings->setSwitchPulseLength(inputMessage.toInt());
+      TempWebServer::mSettings->setShouldSave(true);
+  }
+  if (request->hasParam("SwitchBits")) {
+      inputMessage = request->getParam("SwitchBits")->value();
+      CONSOLELN(inputMessage);     
+      TempWebServer::mSettings->setSwitchBits(inputMessage.toInt());
+      TempWebServer::mSettings->setShouldSave(true);
+  }
+  if (request->hasParam("SwitchRepeats")) {
+      inputMessage = request->getParam("SwitchRepeats")->value();
+      CONSOLELN(inputMessage);     
+      TempWebServer::mSettings->setSwitchRepeat(inputMessage.toInt());
       TempWebServer::mSettings->setShouldSave(true);
   }
   if (request->hasParam(PARAM_PW_INPUT)) {

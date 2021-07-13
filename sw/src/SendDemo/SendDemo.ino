@@ -17,13 +17,15 @@ void setup() {
   mySwitch.enableTransmit(0);
   mySwitch.setProtocol(1);
   mySwitch.setPulseLength(315);  
-  //mySwitch.setRepeatTransmit(15);  
+  mySwitch.setRepeatTransmit(3);  
 }
 
 void loop() {
   /* Same switch as above, but using decimal code */
+  Serial.println("on");
   mySwitch.send(1631343, 24);
   delay(2500);  
+  Serial.println("off");
   mySwitch.send(1631342, 24);
   delay(2500);   
 }

@@ -24,7 +24,7 @@
 bool configMode = true;
 Settings datas;
 RCSwitch mySwitch = RCSwitch();
-TemperaturSensorDS18B20 tmpSensor(GPIO2_D4,datas);
+TemperaturSensorDS18B20 tmpSensor(GPIO4_D2,datas);
 ControllerHysterese controlTmp(datas);
 Led led(GPIO5_D1);
 DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
@@ -81,20 +81,22 @@ void loop() {
     sensorRead.start();
     if (sensorRead.timeOver()) {
       float temperatureC = tmpSensor.getTemperatur();
-      bool st = controlTmp.getState(temperatureC);
-      led.set(st);
-      datas.setActTemp(temperatureC);
-      datas.setOnOff(st);
-      CONSOLE(temperatureC);
-      CONSOLE("ºC");
-      if (st ) {
-        CONSOLELN(" on");
-        mySwitch.send(datas.getSwitchOn(),datas.getSwitchBits());
-      } else {
-        CONSOLELN(" off");
-        mySwitch.send(datas.getSwitchOff(),datas.getSwitchBits());
+      if ( -126.0f < temperatureC ) {
+        bool st = controlTmp.getState(temperatureC);
+        led.set(st);
+        datas.setActTemp(temperatureC);
+        datas.setOnOff(st);
+        CONSOLE(temperatureC);
+        CONSOLE("ºC");
+        if (st ) {
+          CONSOLELN(" on");
+          mySwitch.send(datas.getSwitchOn(),datas.getSwitchBits());
+        } else {
+          CONSOLELN(" off");
+          mySwitch.send(datas.getSwitchOff(),datas.getSwitchBits());
+        }
+        sensorRead.restart();
       }
-      sensorRead.restart();
     }
     if ( datas.getShouldSave() ) {
       loader.save();
