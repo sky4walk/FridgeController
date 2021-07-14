@@ -23,6 +23,7 @@ class Settings
       params.switchPulseLength  = 315;
       params.switchBits         = 24;
       params.switchRepeat       = 15;
+      params.restartEsp         = false;
     }
     float getKalT() 
     {
@@ -122,6 +123,12 @@ class Settings
     void setSwitchRepeat(int switchRepeat) {
       params.switchRepeat = switchRepeat;
     }
+    bool getRestartEsp() {
+      return params.restartEsp;
+    }
+    void setRestartEsp(bool restartEsp) {
+      params.restartEsp = restartEsp;
+    }
   private:
     
     struct
@@ -142,6 +149,7 @@ class Settings
       int switchPulseLength;
       int switchBits;
       int switchRepeat;
+      bool restartEsp;
     } params;
 };
 #endif

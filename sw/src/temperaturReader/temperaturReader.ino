@@ -1,6 +1,6 @@
 //#include <DNSServer.h>
 //#include <ESP8266WebServer.h>
-//#include <ESP8266WiFi.h> 
+//#include <ESP8266WiFi.h>
 #include <RCSwitch.h>
 #include "DbgConsole.h"
 #include "tempsensor.h"
@@ -19,7 +19,6 @@
 #define DRD_ADDRESS 0
 #define DRD_TIMEOUT 10
 #define READ_TEMP  1*MIL2SEC
-
 
 bool configMode = true;
 Settings datas;
@@ -104,4 +103,8 @@ void loop() {
     }
   }
   drd.loop();
+  if ( datas.getRestartEsp() ) {
+    delay(500);
+    ESP.restart();
+  }
 }

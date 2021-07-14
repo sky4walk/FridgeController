@@ -1,4 +1,5 @@
 // brausteuerung@AndreBetz.de
+//#include <Update.h>
 #include "ESP8266WiFi.h"
 #include "ESPAsyncTCP.h"
 #include "TempWebServer.h"
@@ -113,6 +114,11 @@ const char setup_html[] PROGMEM = R"rawliteral(
    
   </body></html>
 )rawliteral";
+
+String updateView = "<h1>Choose .ino or .bin file for update</h1>"
+        "<form id='form' method='POST' action='/process' enctype='multipart/form-data'>"
+        "<input type='file' name='file' id='file'>"
+        "<br><input type='submit' class='btn' value='Update It'></form>";
 
 // processor ersetzt werte im Dokument
 String processorTemp(const String& var){
@@ -238,6 +244,44 @@ void setLevelGet(AsyncWebServerRequest *request) {
   request->send(200, "text/html", "<a href=\"/\">Return to Home Page</a>");
 }
 
+void updateRequest(AsyncWebServerRequest *request){
+    request->send(200,"text/html",updateView);
+}
+
+void httpProcessUpdate(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final)
+{
+  uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+  if (!index)
+  {
+    CONSOLELN("process update");
+    Update.runAsync(true);
+    if (!Update.begin(free_space))
+    {
+      Update.printError(Serial);
+    }
+    CONSOLE("UploadStart: ");
+    CONSOLELN(filename.c_str());
+  }
+
+  if (Update.write(data, len) != len)
+  {
+    Update.printError(Serial);
+  }
+
+  if (final)
+  {
+    if (!Update.end(true))
+    {
+      Update.printError(Serial);
+    }
+    else
+    {
+      TempWebServer::mSettings->setRestartEsp(true);
+      CONSOLELN("Update complete");
+    }
+  }
+}
+
 Settings* TempWebServer::mSettings;
 
 TempWebServer::TempWebServer(
@@ -253,6 +297,10 @@ void TempWebServer::begin(){
       mServer.on("/readState", HTTP_GET, readState);
       mServer.on("/setUp", HTTP_GET, setLevel);
       mServer.on("/setUpGet", HTTP_GET, setLevelGet);
+      mServer.on("/update", HTTP_GET, updateRequest);
+      mServer.on("/process", HTTP_POST, [](AsyncWebServerRequest *request){
+        request->send(200);
+      }, httpProcessUpdate);
       mServer.onNotFound( notFound );
       mServer.begin();
 }        
